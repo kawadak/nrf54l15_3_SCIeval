@@ -41,16 +41,45 @@ int main(void)
     ret = i2c_get_config(i2c_dev, &i2c_cfg);
     if (ret == 0) {
         uint32_t speed = I2C_SPEED_GET(i2c_cfg);
-        printk("I2C speed: %s\n", 
-               speed == I2C_SPEED_FAST ? "400kHz" : "other");
+        const char *speed_str;
+        switch (speed) {
+            case I2C_SPEED_STANDARD:   speed_str = "100kHz"; break;
+            case I2C_SPEED_FAST:       speed_str = "400kHz"; break;
+            case I2C_SPEED_FAST_PLUS:  speed_str = "1MHz"; break;
+            default:                   speed_str = "unknown"; break;
+        }
+        printk("I2C speed: %s\n", speed_str);
     }
+
 
     printk("Starting I2C transmission to addr 0x%02X...\n", I2C_ADDR_7BIT);
 
     /* 連続送信 */
     while (1) {
-        ret = i2c_write(i2c_dev, tx_buf, sizeof(tx_buf), I2C_ADDR_7BIT);
+
+
+        for(int i=0;i!=sizeof(tx_buf);i++){
+            ret = i2c_write(i2c_dev, &tx_buf[i], 1, I2C_ADDR_7BIT);
+            
+            if (ret == 0) {
+                success_count++;
+                if (success_count % 100 == 0) {
+                    printk("OK: %u, ERR: %u\n", success_count, error_count);
+                }
+            } else {
+                error_count++;
+                if (error_count % 10 == 0) {
+                    printk("I2C error: %d (total: %u)\n", ret, error_count);
+                }
+                //k_msleep(10);
+            }
+            
+        }
         
+        /*
+        
+        ret = i2c_write(i2c_dev, tx_buf, sizeof(tx_buf), I2C_ADDR_7BIT);
+
         if (ret == 0) {
             success_count++;
             if (success_count % 100 == 0) {
@@ -63,6 +92,7 @@ int main(void)
             }
             k_msleep(10);
         }
+            */
         
         k_yield();
     }

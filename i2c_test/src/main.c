@@ -38,26 +38,22 @@ static const struct device *sda_dev;
  * ======================================== */
 
 /* 遅延関数 */
-static inline void i2c_delay(void)
-{
+static inline void i2c_delay(void) {
     k_busy_wait(I2C_DELAY_US);
 }
 
 /* SDA設定 */
-static void sda_high(void)
-{
+static void sda_high(void) {
     gpio_pin_configure(sda_dev, I2C_SDA_PIN, GPIO_INPUT | GPIO_PULL_UP);
     i2c_delay();
 }
 
-static void sda_low(void)
-{
+static void sda_low(void) {
     gpio_pin_configure(sda_dev, I2C_SDA_PIN, GPIO_OUTPUT_LOW);
     i2c_delay();
 }
 
-static int sda_read(void)
-{
+static int sda_read(void) {
     int val;
     gpio_pin_configure(sda_dev, I2C_SDA_PIN, GPIO_INPUT | GPIO_PULL_UP);
     val = gpio_pin_get(sda_dev, I2C_SDA_PIN);
@@ -65,8 +61,7 @@ static int sda_read(void)
 }
 
 /* SCL設定 */
-static void scl_high(void)
-{
+static void scl_high(void) {
     gpio_pin_configure(scl_dev, I2C_SCL_PIN, GPIO_INPUT | GPIO_PULL_UP);
     i2c_delay();
     
@@ -77,15 +72,13 @@ static void scl_high(void)
     }
 }
 
-static void scl_low(void)
-{
+static void scl_low(void) {
     gpio_pin_configure(scl_dev, I2C_SCL_PIN, GPIO_OUTPUT_LOW);
     i2c_delay();
 }
 
 /* I2Cスタートコンディション */
-static void i2c_start(void)
-{
+static void i2c_start(void) {
     sda_high();
     scl_high();
     sda_low();
@@ -93,16 +86,14 @@ static void i2c_start(void)
 }
 
 /* I2Cストップコンディション */
-static void i2c_stop(void)
-{
+static void i2c_stop(void) {
     sda_low();
     scl_high();
     sda_high();
 }
 
 /* 1バイト書き込み */
-static int i2c_write_byte(uint8_t byte)
-{
+static int i2c_write_byte(uint8_t byte) {
     int i;
     int ack;
 
@@ -128,8 +119,7 @@ static int i2c_write_byte(uint8_t byte)
 }
 
 /* 1バイト読み込み */
-static uint8_t i2c_read_byte(int send_ack)
-{
+static uint8_t i2c_read_byte(int send_ack) {
     int i;
     uint8_t byte = 0;
 
@@ -165,8 +155,7 @@ static uint8_t i2c_read_byte(int send_ack)
 /**
  * @brief I2Cデータ送信
  */
-static int i2c_send_data(uint8_t addr, uint8_t *data, uint8_t len)
-{
+static int i2c_send_data(uint8_t addr, uint8_t *data, uint8_t len) {
     int ret;
     int i;
 
@@ -197,8 +186,7 @@ static int i2c_send_data(uint8_t addr, uint8_t *data, uint8_t len)
 /**
  * @brief I2Cデータ受信
  */
-static int i2c_receive_data(uint8_t addr, uint8_t *data, uint8_t len)
-{
+static int i2c_receive_data(uint8_t addr, uint8_t *data, uint8_t len) {
     int ret;
     int i;
 
@@ -224,8 +212,7 @@ static int i2c_receive_data(uint8_t addr, uint8_t *data, uint8_t len)
 /**
  * @brief レジスタ書き込み
  */
-static int i2c_write_register(uint8_t addr, uint8_t reg_addr, uint8_t value)
-{
+static int i2c_write_register(uint8_t addr, uint8_t reg_addr, uint8_t value) {
     uint8_t data[2];
     data[0] = reg_addr;
     data[1] = value;
@@ -236,8 +223,7 @@ static int i2c_write_register(uint8_t addr, uint8_t reg_addr, uint8_t value)
 /**
  * @brief レジスタ読み込み
  */
-static int i2c_read_register(uint8_t addr, uint8_t reg_addr, uint8_t *value)
-{
+static int i2c_read_register(uint8_t addr, uint8_t reg_addr, uint8_t *value) {
     int ret;
 
     /* レジスタアドレス送信 */
@@ -253,8 +239,7 @@ static int i2c_read_register(uint8_t addr, uint8_t reg_addr, uint8_t *value)
 /**
  * @brief GPIOデバイス取得
  */
-static const struct device* get_gpio_device(int port)
-{
+static const struct device* get_gpio_device(int port) {
     switch (port) {
         case 0:
             return DEVICE_DT_GET(DT_NODELABEL(gpio0));
@@ -270,8 +255,7 @@ static const struct device* get_gpio_device(int port)
 /**
  * @brief I2C初期化
  */
-static int i2c_init(void)
-{
+static int i2c_init(void) {
     /* SCL用GPIOデバイス取得 */
     scl_dev = get_gpio_device(I2C_SCL_PORT);
     if (scl_dev == NULL || !device_is_ready(scl_dev)) {
@@ -303,8 +287,7 @@ static int i2c_init(void)
  * メイン関数
  * ======================================== */
 
-int main(void)
-{
+int main(void) {
     int ret;
     uint8_t data = SEND_DATA_MIN;
     uint8_t tx_data[1];

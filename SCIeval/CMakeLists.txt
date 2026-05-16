@@ -3,4 +3,11 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 project(SCIeval)
 
-target_sources(app PRIVATE src/main.c)
+target_sources(app PRIVATE
+  src/main.c
+  src/myble.c
+  src/mygpio.c
+  src/mysci.c
+)
+
+zephyr_library_include_directories(.)

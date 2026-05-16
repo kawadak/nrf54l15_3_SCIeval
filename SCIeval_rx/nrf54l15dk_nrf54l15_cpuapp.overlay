@@ -1,0 +1,31 @@
+/* I2C設定: TWIM21を使用（UART20との競合回避） */
+
+&i2c21 {
+    status = "okay";
+    compatible = "nordic,nrf-twim";
+    pinctrl-0 = <&i2c21_default>;
+    pinctrl-1 = <&i2c21_sleep>;
+    pinctrl-names = "default", "sleep";
+    //clock-frequency = <I2C_BITRATE_STANDARD>; /* 100kHz */
+    clock-frequency = <I2C_BITRATE_FAST>; /* 400kHz */
+    //clock-frequency = <I2C_BITRATE_FAST_PLUS>; /* 1MHz */
+};
+
+&pinctrl {
+    i2c21_default: i2c21_default {
+        group1 {
+            psels = <NRF_PSEL(TWIM_SDA, 1, 10)>,
+                    <NRF_PSEL(TWIM_SCL, 1, 11)>;
+            //bias-pull-up;  /* ★ 内蔵プルアップを有効化 */
+        };
+    };
+
+    i2c21_sleep: i2c21_sleep {
+        group1 {
+            psels = <NRF_PSEL(TWIM_SDA, 1, 10)>,
+                    <NRF_PSEL(TWIM_SCL, 1, 11)>;
+            low-power-enable;
+            //bias-pull-up;  /* ★ スリープ時もプルアップを維持 */
+        };
+    };
+};
